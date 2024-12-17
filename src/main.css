@@ -1,0 +1,9 @@
+.hover-grow {
+    transition: transform .3s;
+    cursor: pointer;
+}
+
+.hover-grow:hover {
+    transform: scale(1.2);
+    z-index: 100;
+}
