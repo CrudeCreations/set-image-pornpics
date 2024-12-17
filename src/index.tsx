@@ -1,6 +1,16 @@
 import { StashClient } from "./api/stash";
-import { PicsButton } from "./components/PicsButton";
-import { asyncTimeout, matchLocation, getSetImageComponents } from "./utils";
+import {
+  PornPicsButton,
+  PornPicsButtonProps,
+} from "./components/PornPicsButton";
+import { ITEM_TYPE, ItemData } from "./types";
+import {
+  asyncTimeout,
+  matchLocation,
+  getSetImageComponents,
+  getItemId,
+  getItemType,
+} from "./utils";
 
 const INJECTED_ROUTES = ["groups", "scenes", "performers", "tags"];
 
@@ -18,13 +28,15 @@ const TARGET_TEXT = ["front image", "back image", "set image"];
     Event,
     utils: { StashService },
   } = window.PluginApi;
+
   const client = new StashClient(StashService);
   const startAddon = async (path: string) => {
     if (!matchLocation(path, INJECTED_ROUTES)) return;
     await asyncTimeout(100); //Yes super hacky, will replace with wait for selector
-    const id = window.location.href.split("/").pop()?.split("?")[0];
-    if (!id) return;
-    const itemData = await client.getSceneData(id);
+    const id = getItemId();
+    const itemType = getItemType();
+    const itemData = await getItemData(id, itemType);
+    console.log(itemType, itemData);
     const injectButtons = () => {
       const setImageButtons = getSetImageComponents(
         TARGET_SELECTORS,
@@ -43,15 +55,46 @@ const TARGET_TEXT = ["front image", "back image", "set image"];
     );
   };
 
-  const injectButton = (button: HTMLElement, itemData: any) => {
+  const injectButton = (button: HTMLElement, itemData: ItemData) => {
     if (button.parentElement?.querySelector(".pornpics-button")) return;
     const renderButton = document.createElement("div");
     button.parentElement?.appendChild(renderButton);
     // Have to use render because createRoot is not exposed...
     ReactDOM.render(
-      <PicsButton itemData={itemData} client={client} />,
+      <PornPicsButton itemData={itemData} client={client} />,
       renderButton
     );
+  };
+
+  const getItemData = async (
+    itemId: string,
+    itemType: ITEM_TYPE
+  ): Promise<ItemData> => {
+    switch (itemType) {
+      case ITEM_TYPE.SCENE: {
+        const {
+          title,
+          id,
+          paths: { screenshot },
+        } = await client.getSceneData(itemId);
+        return { title, id, cover: screenshot, type: itemType };
+      }
+      case ITEM_TYPE.TAG || ITEM_TYPE.PERFORMER: {
+        const { id, name, image_path } =
+          itemType == ITEM_TYPE.TAG
+            ? await client.getTagData(itemId)
+            : await client.getPerformerData(itemId);
+        return { id, title: name, cover: image_path, type: itemType };
+      }
+      case ITEM_TYPE.GROUP: {
+        const { id, name, front_image_path } = await client.getGroupData(
+          itemId
+        ); // TODO: Consider back_image_path
+        return { id, title: name, cover: front_image_path, type: itemType };
+      }
+      default:
+        throw new Error(`Invalid item type: ${itemType}`);
+    }
   };
 
   Event.addEventListener("stash:location", (e) =>

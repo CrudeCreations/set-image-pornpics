@@ -1,11 +1,71 @@
 import { ApolloClient } from "@apollo/react-hooks";
 import gql from "graphql-tag";
-import { IPluginApi, PornPicsImage, SAVE_MODE } from "../types";
+import { IPluginApi, ITEM_TYPE, PornPicsImage } from "../types";
 
 export class StashClient {
   client: ApolloClient<object>;
   constructor(stashService: IPluginApi["utils"]["StashService"]) {
     this.client = stashService.getClient() as ApolloClient<object>;
+  }
+
+  public async getGroupData(
+    id: string
+  ): Promise<{
+    id: string;
+    name: string;
+    front_image_path: string;
+    back_image_path: string;
+  }> {
+    const resp = await this.client.query({
+      variables: { id },
+      query: gql`
+        query getGroupById($id: ID!) {
+          findGroup(id: $id) {
+            id
+            name
+            front_image_path
+            back_image_path
+          }
+        }
+      `,
+    });
+    return resp.data.findGroup;
+  }
+
+  public async getPerformerData(
+    id: string
+  ): Promise<{ id: string; name: string; image_path: string }> {
+    const resp = await this.client.query({
+      variables: { id },
+      query: gql`
+        query getPerformerById($id: ID!) {
+          findPerformer(id: $id) {
+            id
+            name
+            image_path
+          }
+        }
+      `,
+    });
+    return resp.data.findPerformer;
+  }
+
+  public async getTagData(
+    id: string
+  ): Promise<{ id: string; name: string; image_path: string }> {
+    const resp = await this.client.query({
+      variables: { id },
+      query: gql`
+        query getTagById($id: ID!) {
+          findTag(id: $id) {
+            id
+            name
+            image_path
+          }
+        }
+      `,
+    });
+    return resp.data.findTag;
   }
 
   public async getSceneData(
@@ -49,19 +109,19 @@ export class StashClient {
   public async saveImage(
     id: string,
     imageSrc: string,
-    saveMode: SAVE_MODE
+    itemType: ITEM_TYPE
   ): Promise<any> {
     const resp = await this.client.mutate({
-      variables: { id, imageSrc, saveMode },
+      variables: { id, imageSrc, itemType },
       mutation: gql`
-        mutation SaveImage($id: Int!, $imageSrc: String!, $saveMode: Int!) {
+        mutation SaveImage($id: Int!, $imageSrc: String!, $itemType: String!) {
           runPluginOperation(
             plugin_id: "set-image-pornpics"
             args: {
               mode: "saveImage"
               img_src: $imageSrc
-              save_mode: $saveMode
-              scene_id: $id
+              item_type: $itemType
+              id: $id
             }
           )
         }

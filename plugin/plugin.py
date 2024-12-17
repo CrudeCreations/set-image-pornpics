@@ -18,9 +18,13 @@ def main():
             case "getSet":
                 writeJSONOutput(scraper.get_set(input['args']['set_url']))
             case "saveImage":
-                client = StashInterface(input['server_connection'])
-                writeJSONOutput(client.saveSceneCover(input['args']['scene_id'], input['args']['img_src']))
-                
+                writeJSONOutput(saveCover(input['args']['id'], input['args']['item_type'], input['args']['img_src'], input['server_connection']))
+
+def saveCover(id, item_type, img_src, server_connection):
+    client = StashInterface(server_connection)
+    match item_type:
+        case "scene":
+            return client.saveSceneCover(id, img_src)
                 
                 
 def writeJSONOutput(d):

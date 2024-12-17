@@ -54,18 +54,21 @@ export interface PornPicsImage {
   url_hd: string;
 }
 
+export interface ItemData {
+  id: string;
+  title: string;
+  cover: string;
+  type: ITEM_TYPE;
+}
+
 export enum DIALOG_MODE {
   GALLERY,
   SET,
 }
-export enum SAVE_MODE {
-  URL,
-  FILE,
-}
 
 export enum ITEM_TYPE {
-  SCENE,
-  GROUP,
-  PERFORMER,
-  TAG,
+  SCENE="scene",
+  GROUP="group",
+  PERFORMER="performer",
+  TAG="tag",
 }

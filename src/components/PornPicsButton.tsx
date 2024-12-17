@@ -1,5 +1,5 @@
 import { StashClient } from "../api/stash";
-import { PornPicsImage, DIALOG_MODE, SAVE_MODE } from "../types";
+import { PornPicsImage, DIALOG_MODE, ITEM_TYPE, ItemData } from "../types";
 const React = window.PluginApi.React;
 const { useState, useEffect, useRef } = React;
 const {
@@ -14,16 +14,15 @@ const {
   CardImg,
 } = window.PluginApi.libraries.Bootstrap;
 
-interface PornpicsButtonProps {
-  itemData: { id: string; title: string; cover: string };
+export interface PornPicsButtonProps {
+  itemData: ItemData;
   client: StashClient;
 }
 
-export const PicsButton = ({
+export const PornPicsButton = ({
   itemData,
   client
-}: PornpicsButtonProps) => {
-  const saveMode = SAVE_MODE.URL;
+}: PornPicsButtonProps) => {
   const dialogScrollContainer = useRef();
   const [mode, setMode] = useState(DIALOG_MODE.GALLERY);
   const [loading, setLoading] = useState(true);
@@ -87,7 +86,7 @@ export const PicsButton = ({
   };
 
   const handleImageSelect = async (img: PornPicsImage) => {
-    const imgSrc = await client.saveImage(itemData.id, img.url_hd, saveMode);
+    const imgSrc = await client.saveImage(itemData.id, img.url_hd, itemData.type);
     document.querySelector(".scene-cover")?.setAttribute("src", imgSrc);
     (
       document.querySelector(".vjs-poster") as HTMLElement
