@@ -78,7 +78,8 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
         } = await client.getSceneData(itemId);
         return { title, id, cover: screenshot, type: itemType };
       }
-      case ITEM_TYPE.TAG || ITEM_TYPE.PERFORMER: {
+      case ITEM_TYPE.TAG:
+      case ITEM_TYPE.PERFORMER: {
         const { id, name, image_path } =
           itemType == ITEM_TYPE.TAG
             ? await client.getTagData(itemId)
