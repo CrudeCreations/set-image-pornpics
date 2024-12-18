@@ -19,7 +19,7 @@ const TARGET_SELECTORS = [
   "#scene-edit-details .scene-cover + button.btn-secondary",
 ];
 
-const TARGET_TEXT = ["front image", "back image", "set image"];
+const TARGET_TEXT = ["set image", "front image", "back image"];
 
 (function () {
   const {
@@ -36,7 +36,6 @@ const TARGET_TEXT = ["front image", "back image", "set image"];
     const id = getItemId();
     const itemType = getItemType();
     const itemData = await getItemData(id, itemType);
-    console.log(itemType, itemData);
     const injectButtons = () => {
       const setImageButtons = getSetImageComponents(
         TARGET_SELECTORS,
@@ -45,7 +44,7 @@ const TARGET_TEXT = ["front image", "back image", "set image"];
       setImageButtons.forEach((button) => injectButton(button, itemData));
     };
 
-    const editButton = document.querySelector("edit-btn.btn-primary");
+    const editButton = document.querySelector(".edit.btn.btn-primary");
     const editTab = document.querySelector('a[data-rb-event-key*="edit-panel"');
     editButton?.addEventListener("click", () =>
       asyncTimeout(100).then(injectButtons)

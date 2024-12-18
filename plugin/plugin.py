@@ -25,6 +25,8 @@ def saveCover(id, item_type, img_src, server_connection):
     match item_type:
         case "scene":
             return client.saveSceneCover(id, img_src)
+        case "tag":
+            return client.saveTagCover(id, img_src)
                 
                 
 def writeJSONOutput(d):

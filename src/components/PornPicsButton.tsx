@@ -88,9 +88,10 @@ export const PornPicsButton = ({
   const handleImageSelect = async (img: PornPicsImage) => {
     const imgSrc = await client.saveImage(itemData.id, img.url_hd, itemData.type);
     document.querySelector(".scene-cover")?.setAttribute("src", imgSrc);
-    (
-      document.querySelector(".vjs-poster") as HTMLElement
-    ).style.backgroundImage = `url("${imgSrc}")`;
+    document.querySelector('.logo')?.setAttribute('src', imgSrc);
+    document.querySelector(`.tag-card-image[src*="tag/${itemData.id}/image"]`)?.setAttribute("src", imgSrc);
+    const poster = document.querySelector(".vjs-poster") as HTMLElement | undefined;
+    if(poster) poster.style.background = `url("${imgSrc}")`;
     closeDialog();
   };
 
@@ -99,7 +100,7 @@ export const PornPicsButton = ({
 
   return (
     <>
-      <Button variant="secondary" class="pornpics-button" onClick={openDialog}>
+      <Button variant="secondary" className="pornpics-button" onClick={openDialog}>
         <span>Search PornPics...</span>
       </Button>
       <Modal show={showDialog} onHide={closeDialog}>
@@ -129,7 +130,7 @@ export const PornPicsButton = ({
               </Row>
             )}
             <Row className="p-2 d-flex justify-content-center">
-              {getActiveImages().length > 0 && (
+              {getActiveImages()?.length > 0 && (
                 <Row xs="2">
                   {getActiveImages().map((img) => (
                     <Col>

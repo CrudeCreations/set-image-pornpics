@@ -127,7 +127,8 @@ export class StashClient {
         }
       `,
     });
-    return resp.data.runPluginOperation.paths.screenshot;
+    const data = resp.data.runPluginOperation;
+    return data.paths ? data.paths.screenshot : data.image_path;
   }
 
   public async getSet(

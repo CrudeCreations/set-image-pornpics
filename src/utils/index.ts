@@ -39,18 +39,18 @@ export const getSetImageComponents = (
 
 
 export const getItemId = (): string => {
-  const id = window.location.href.split("/").at(-1)?.split("?")[0];
+  const id = window.location.href.split("/").at(4)?.split("?")[0];
   if (!id) throw new Error(`Item id cannot be determined from "${window.location.href}"`);
   return id;
 }
 
 export const getItemType = (): ITEM_TYPE => {
-  const itemString = window.location.href.split("/").at(-2);
+  const itemString = window.location.href.split("/").at(3)?.split("?")[0];
   switch (itemString) {
     case "scenes":
       return ITEM_TYPE.SCENE;
     case "tags":
-      return ITEM_TYPE.SCENE;
+      return ITEM_TYPE.TAG;
     case "groups":
       return ITEM_TYPE.GROUP;
     case "performers":

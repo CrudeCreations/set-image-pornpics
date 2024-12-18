@@ -55,9 +55,30 @@ mutation setSceneCover($id:ID!,$imgSrc:String!) {
 }
         """
         variables = {
-			'id': id,
-            'imgSrc': imgSrc
-		}
+          'id': id,
+          'imgSrc': imgSrc
+        }
         result = self.__callGraphQL(query, variables)
         return result['sceneUpdate']
+      
+    def saveTagCover(self, id, imgSrc):
+        query = """
+mutation setTagCover($id:ID!,$imgSrc:String!) {
+  tagUpdate(
+    input: {
+      id:$id,
+      image:$imgSrc
+    }
+  ){
+    id,
+    image_path
+  }
+}
+        """
+        variables = {
+			    'id': id,
+          'imgSrc': imgSrc
+		    }
+        result = self.__callGraphQL(query, variables)
+        return result['tagUpdate']
         
