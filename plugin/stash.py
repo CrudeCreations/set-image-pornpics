@@ -124,3 +124,17 @@ mutation setGroupCover($id:ID!,$imgSrc:String!) {
 		    }
         result = self.__callGraphQL(query, variables)
         return result['groupUpdate']
+      
+    def getDefaultImageTags(self):
+        query = """
+{
+	allTags {
+    id,
+    name,
+    aliases,
+    image_path
+  }
+}
+        """
+        result = self.__callGraphQL(query)
+        return [tag for tag in result['allTags'] if "&default=true" in tag['image_path']]
