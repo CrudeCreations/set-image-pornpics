@@ -1,6 +1,7 @@
 import json
 import sys
 import random
+import time
 
 import log
 from stash import StashInterface
@@ -38,19 +39,18 @@ def setTags(server_connection):
     tags = client.getDefaultImageTags()
     log.LogInfo("Updating {count} tags".format(count = len(tags)))
     progress = 0
-    tags = [tags[0]] # Only test one tag at a time for now
     for tag in tags:
         log.LogDebug("Searching for: {tag}".format(tag = json.dumps(tag)))
         queries = [tag['name']] + tag['aliases']
         for query in queries:
-            images = scraper.get_galleries(query, offset=0, limit=200)
+            images = scraper.get_galleries(query, offset=0, limit=200, aspect="vertical")
             if len(images): continue
+        log.LogDebug("Found {count} images".format(count=len(images)))
         if len(images) > 0:
             client.saveTagCover(tag['id'], random.choice(images)['url_hd'])
-        else:    
-            log.LogDebug("Found no galleries for: {name} (and aliases)".format(name=tag['name']))
         progress += 1
         log.LogProgress(float(progress) / len(tags))
+        time.sleep(.5) #Sleep to avoid hammering PornPics
         
             
                 
