@@ -7,6 +7,14 @@ ui:
   - main.css
   javascript:
   - index.js
+settings:
+  show_edit_scene:
+    displayName: Show button when editing scene
+    type: BOOLEAN
+  show_edit_group:
+    displayName: Show button when editing group
+    type: BOOLEAN
+
 exec:
   - python
   - "{pluginDir}\\plugin\\plugin.py"
@@ -15,6 +23,3 @@ tasks:
   - name: Set Image for all blank tags
     defaultArgs:
       mode: setTags
-  - name: Clear Image cache
-    defaultArgs:
-      mode: clearCache

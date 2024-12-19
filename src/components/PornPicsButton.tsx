@@ -1,5 +1,6 @@
 import { StashClient } from "../api/stash";
 import { PornPicsImage, DIALOG_MODE, ITEM_TYPE, ItemData } from "../types";
+import { getImageSelectors, useDebounce } from "../utils";
 const React = window.PluginApi.React;
 const { useState, useEffect, useRef } = React;
 const {
@@ -17,38 +18,42 @@ const {
 export interface PornPicsButtonProps {
   itemData: ItemData;
   client: StashClient;
+  isFrontImage: boolean;
 }
 
-export const PornPicsButton = ({
-  itemData,
-  client
-}: PornPicsButtonProps) => {
+export const PornPicsButton = ({ itemData, client, isFrontImage }: PornPicsButtonProps) => {
   const dialogScrollContainer = useRef();
   const [mode, setMode] = useState(DIALOG_MODE.GALLERY);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
-  const [queryState, setQueryState] = useState({
-    query: itemData.title,
-    offset: 0,
-  });
+  const [query, setQuery] = useState(itemData.title);
+  const [offset, setOffset] = useState(0);
+  const debouncedQuery = useDebounce(query, 500);
   const [lastScroll, setLastScroll] = useState(0);
   const openDialog = () => setShowDialog(true);
   const closeDialog = () => setShowDialog(false);
   const [galleryData, setGalleryData] = useState<PornPicsImage[]>([]);
   const [imageData, setImageData] = useState<PornPicsImage[]>([]);
-
+  
   useEffect(() => {
     setLoading(true);
-    queryState.offset == 0 && setGalleryData([]);
+    if (debouncedQuery != query) {
+      setOffset(0);
+      return setGalleryData([]);
+    }
+
     client
-      .getGalleries(queryState.query, queryState.offset)
-      .then((data) =>
-        setGalleryData(
-          queryState.offset > 0 ? [...galleryData, ...data.images] : data.images
-        )
-      )
+      .getGalleries(query, offset)
+      .then((data) => setGalleryData([...galleryData, ...data.images]))
       .finally(() => setLoading(false));
-  }, [queryState]);
+  }, [query, offset]);
+
+  useEffect(() => {
+    client
+      .getGalleries(debouncedQuery, offset)
+      .then((data) => setGalleryData(data.images))
+      .finally(() => setLoading(false));
+  }, [debouncedQuery]);
 
   useEffect(() => {
     mode == DIALOG_MODE.GALLERY &&
@@ -67,7 +72,7 @@ export const PornPicsButton = ({
       e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 10 &&
       mode == DIALOG_MODE.GALLERY
     )
-      setQueryState({ ...queryState, offset: galleryData.length });
+      setOffset(galleryData.length);
   };
 
   const handleGallerySelect = async (img: PornPicsImage) => {
@@ -86,21 +91,30 @@ export const PornPicsButton = ({
   };
 
   const handleImageSelect = async (img: PornPicsImage) => {
-    const imgSrc = await client.saveImage(itemData.id, img.url_hd, itemData.type);
-    document.querySelector(".scene-cover")?.setAttribute("src", imgSrc);
-    document.querySelector('.logo')?.setAttribute('src', imgSrc);
-    document.querySelector(`.tag-card-image[src*="tag/${itemData.id}/image"]`)?.setAttribute("src", imgSrc);
-    const poster = document.querySelector(".vjs-poster") as HTMLElement | undefined;
-    if(poster) poster.style.background = `url("${imgSrc}")`;
+    const imgSrc = await client.saveImage(
+      itemData.id,
+      img.url_hd,
+      itemData.type,
+      isFrontImage
+    );
+    const targetSelectors = getImageSelectors(itemData, isFrontImage);
+    targetSelectors.forEach(s => document.querySelector(s)?.setAttribute('src', img.url_hd))
+    const poster = document.querySelector(".vjs-poster") as
+      | HTMLElement
+      | undefined;
+    if (poster) poster.style.background = `url("${imgSrc}")`;
     closeDialog();
   };
-
   const getActiveImages = () =>
     mode == DIALOG_MODE.GALLERY ? galleryData : imageData;
 
   return (
     <>
-      <Button variant="secondary" className="pornpics-button" onClick={openDialog}>
+      <Button
+        variant="secondary"
+        className="pornpics-button"
+        onClick={openDialog}
+      >
         <span>Search PornPics...</span>
       </Button>
       <Modal show={showDialog} onHide={closeDialog}>
@@ -113,9 +127,9 @@ export const PornPicsButton = ({
               <input
                 id="pornpics-button-input"
                 placeholder="Search..."
-                value={queryState.query}
+                value={query}
                 onChange={(e: any) =>
-                  setQueryState({ query: e.target.value, offset: 0 })
+                  setQuery(e.target.value)
                 }
               />
             </Row>
@@ -167,3 +181,5 @@ export const PornPicsButton = ({
     </>
   );
 };
+
+export default PornPicsButton;

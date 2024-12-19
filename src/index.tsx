@@ -1,8 +1,5 @@
 import { StashClient } from "./api/stash";
-import {
-  PornPicsButton,
-  PornPicsButtonProps,
-} from "./components/PornPicsButton";
+import { PornPicsButton } from "./components/PornPicsButton";
 import { ITEM_TYPE, ItemData } from "./types";
 import {
   asyncTimeout,
@@ -31,8 +28,15 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
 
   const client = new StashClient(StashService);
   const startAddon = async (path: string) => {
-    if (!matchLocation(path, INJECTED_ROUTES)) return;
+
+    const loc = matchLocation(path, INJECTED_ROUTES);
+    if (!loc) return;
+
     await asyncTimeout(100); //Yes super hacky, will replace with wait for selector
+    const config = await client.getPluginConfig("set-image-pornpics");
+    if ((config.show_edit_group != true && loc == "groups") || (config.show_edit_scene != true && loc == "scenes")) {
+      return;
+    }
     const id = getItemId();
     const itemType = getItemType();
     const itemData = await getItemData(id, itemType);
@@ -41,7 +45,12 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
         TARGET_SELECTORS,
         TARGET_TEXT
       );
-      setImageButtons.forEach((button) => injectButton(button, itemData));
+      setImageButtons.forEach((button) => {
+        if(itemType == ITEM_TYPE.GROUP) {
+          injectButton(button, itemData, button.textContent!.toLowerCase().indexOf('front') > -1);
+        }else
+          injectButton(button, itemData, true);
+      });
     };
 
     const editButton = document.querySelector(".edit.btn.btn-primary");
@@ -54,13 +63,17 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
     );
   };
 
-  const injectButton = (button: HTMLElement, itemData: ItemData) => {
-    if (button.parentElement?.querySelector(".pornpics-button")) return;
-    const renderButton = document.createElement("div");
-    button.parentElement?.appendChild(renderButton);
+  const injectButton = (button: HTMLElement, itemData: ItemData, isFrontImage: boolean) => {
+    const renderClass = `pornpics-btn-wrapper-${isFrontImage ? 'front' : 'back'}`;
+    let renderButton = button.parentNode?.querySelector(`.${renderClass}`);
+    if (!renderButton) {
+      renderButton = document.createElement("div");
+      renderButton.className = renderClass;
+    }
+    button.parentNode?.insertBefore(renderButton, button.nextSibling);
     // Have to use render because createRoot is not exposed...
     ReactDOM.render(
-      <PornPicsButton itemData={itemData} client={client} />,
+      <PornPicsButton itemData={itemData} client={client} isFrontImage={isFrontImage} />,
       renderButton
     );
   };
@@ -89,7 +102,7 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
       case ITEM_TYPE.GROUP: {
         const { id, name, front_image_path } = await client.getGroupData(
           itemId
-        ); // TODO: Consider back_image_path
+        );
         return { id, title: name, cover: front_image_path, type: itemType };
       }
       default:

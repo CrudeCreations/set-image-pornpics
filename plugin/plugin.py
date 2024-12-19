@@ -18,15 +18,27 @@ def main():
             case "getSet":
                 writeJSONOutput(scraper.get_set(input['args']['set_url']))
             case "saveImage":
-                writeJSONOutput(saveCover(input['args']['id'], input['args']['item_type'], input['args']['img_src'], input['server_connection']))
+                writeJSONOutput(
+                    saveCover(
+                        input['args']['id'], 
+                        input['args']['item_type'], 
+                        input['args']['img_src'],
+                        input['args']['is_front_img'],
+                        input['server_connection']
+                    )
+                )
 
-def saveCover(id, item_type, img_src, server_connection):
+def saveCover(id, item_type, img_src, is_front_img, server_connection):
     client = StashInterface(server_connection)
     match item_type:
         case "scene":
             return client.saveSceneCover(id, img_src)
         case "tag":
             return client.saveTagCover(id, img_src)
+        case "performer":
+            return client.savePerformerCover(id, img_src)
+        case "group":
+            return client.saveGroupCover(id, img_src, is_front_img)
                 
                 
 def writeJSONOutput(d):

@@ -38,7 +38,7 @@ class StashInterface:
         else:
             raise Exception("GraphQL query failed:{} - {}. Query: {}. Variables: {}".format(response.status_code, response.content, query, variables))
     
-    def saveSceneCover(self, id, imgSrc):
+    def saveSceneCover(self, id, img_src):
         query = """
 mutation setSceneCover($id:ID!,$imgSrc:String!) {
   sceneUpdate(
@@ -56,12 +56,12 @@ mutation setSceneCover($id:ID!,$imgSrc:String!) {
         """
         variables = {
           'id': id,
-          'imgSrc': imgSrc
+          'imgSrc': img_src
         }
         result = self.__callGraphQL(query, variables)
         return result['sceneUpdate']
       
-    def saveTagCover(self, id, imgSrc):
+    def saveTagCover(self, id, img_src):
         query = """
 mutation setTagCover($id:ID!,$imgSrc:String!) {
   tagUpdate(
@@ -77,8 +77,50 @@ mutation setTagCover($id:ID!,$imgSrc:String!) {
         """
         variables = {
 			    'id': id,
-          'imgSrc': imgSrc
+          'imgSrc': img_src
 		    }
         result = self.__callGraphQL(query, variables)
         return result['tagUpdate']
+      
+    def savePerformerCover(self, id, img_src):
+        query = """
+mutation setPerformerCover($id:ID!,$imgSrc:String!) {
+  performerUpdate(
+    input: {
+      id:$id,
+      image:$imgSrc
+    }
+  ){
+    id,
+    image_path
+  }
+}
+        """
+        variables = {
+			    'id': id,
+          'imgSrc': img_src
+		    }
+        result = self.__callGraphQL(query, variables)
+        return result['performerUpdate']
         
+    def saveGroupCover(self, id, img_src, is_front_img):
+        query = """
+mutation setGroupCover($id:ID!,$imgSrc:String!) {
+  groupUpdate(
+    input: {
+      id:$id,
+      {image_path}:$imgSrc
+    }
+  ){
+    id,
+    front_image_path,
+    back_image_path
+  }
+}
+        """.replace("{image_path}", "front_image" if is_front_img else "back_image")
+        variables = {
+			    'id': id,
+          'imgSrc': img_src
+		    }
+        result = self.__callGraphQL(query, variables)
+        return result['groupUpdate']

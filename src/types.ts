@@ -4,6 +4,11 @@ declare global {
   }
 }
 
+export interface IPluginConfig {
+  show_edit_group?:boolean;
+  show_edit_scene?:boolean;
+}
+
 export interface IPluginApi {
   React: typeof React;
   ReactDOM: typeof ReactDOM;
