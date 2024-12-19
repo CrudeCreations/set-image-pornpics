@@ -1,6 +1,6 @@
 {
   "name": "set-image-pornpics",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Stash plugin for setting image from pornpics.com",
   "main": "dist/index.js",
   "type": "module",
@@ -24,6 +24,14 @@
     "rimraf": "^6.0.1",
     "typescript": "^5.2.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CrudeCreations/set-image-pornpics.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CrudeCreations/set-image-pornpics/issues"
+  },
+  "homepage": "https://github.com/CrudeCreations/set-image-pornpics#readme",
   "author": "CrudeCreator",
   "license": "MIT"
 }
