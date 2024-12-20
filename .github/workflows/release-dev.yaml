@@ -1,0 +1,67 @@
+name: Release Beta Plugin
+
+on:
+  push:
+    tags:
+      - "v*-beta"
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Extract Version
+        id: extract_version
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Create ZIP archive
+        run: |
+          mkdir -p temp_package
+          cp -r dist/* plugin temp_package/
+          cp set-image-pornpics.yml src/main.css temp_package/
+          cd temp_package
+          zip -r ../set-image-pornpics-v${{ env.VERSION }}-beta.zip .
+          cd ..
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: set-image-pornpics-v${{ env.VERSION }}-beta.zip
+          generate_release_notes: true
+          prerelease: true
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Generate Manifest
+        run: node release.js ${{ env.VERSION }}-beta _site/dev set-image-pornpics-v${{ env.VERSION }}-beta.zip
+
+      - name: Upload Updated Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
