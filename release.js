@@ -1,0 +1,27 @@
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+import crypto from 'crypto';
+
+const args = process.argv.slice(2);
+const [version, outDir, zipName] = args;
+
+const pluginData = yaml.load(fs.readFileSync('set-image-pornpics.yml', 'utf8'));
+
+const zipData = fs.readFileSync(zipName);
+const sha256Hash = crypto.createHash('sha256').update(zipData).digest('hex');
+
+const manifestData = {
+  id: pluginData.id,
+  name: pluginData.name,
+  version,
+  date: new Date().toISOString(),
+  path: `https://github.com/${process.env.GITHUB_REPOSITORY}/releases/download/v${version}/${zipName}`,
+  sha256: sha256Hash
+};
+
+const outputYaml = yaml.dump(manifestData);
+fs.mkdirSync(outDir, { recursive: true });
+fs.writeFileSync(path.join(outDir, 'plugin.yaml'), outputYaml);
+
+console.log('Manifest file generated:', path.join(outDir, 'plugin.yaml'));

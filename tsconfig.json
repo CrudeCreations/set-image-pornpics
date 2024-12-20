@@ -1,10 +1,11 @@
 {
     "compilerOptions": {
-      "target": "ES2020",
+      "target": "es2022",
       "module": "commonjs",
       "jsx": "react",
       "outDir": "./dist",
       "strict": true,
+      "allowUmdGlobalAccess": true,
       "allowSyntheticDefaultImports": true
     },
     "include": ["src/**/*"]
