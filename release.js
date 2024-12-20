@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import crypto from 'crypto';
-const { format } = require('date-fns');  
+import { format } from 'date-fns';  
 
 const args = process.argv.slice(2);
 const [version, outDir, zipName] = args;
