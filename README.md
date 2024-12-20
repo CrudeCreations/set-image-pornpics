@@ -16,7 +16,9 @@ A Stash plugin that enables easy image management by integrating with PornPics.c
 
 ## Installation (Source URL)
 
-
+1. Go to Stash -> Settings -> Available Plugins and click the `Add Source` button
+2. Enter `https://crudecreations.github.io/stash-plugins/stable/plugins.yaml`
+3. Expand CrudeCreations and check `Set Image PornPics` and click the `Install` button  
 
 ## Installation (Manual)
 
@@ -115,7 +117,7 @@ npm run deploy
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+5. Open a Pull Request to the `dev` branch
 
 ## License
 
