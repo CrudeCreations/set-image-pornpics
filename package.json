@@ -1,6 +1,6 @@
 {
   "name": "set-image-pornpics",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Stash plugin for setting image from pornpics.com",
   "main": "dist/index.js",
   "type": "module",
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
+    "date-fns": "^4.1.0",
     "esbuild": "^0.24.0",
     "js-yaml": "^4.1.0",
     "ncp": "^2.0.0",
