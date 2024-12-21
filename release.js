@@ -14,7 +14,7 @@ const sha256Hash = crypto.createHash('sha256').update(zipData).digest('hex');
 const formattedDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
 
 const manifestData = {
-  id: pluginData.id,
+  id: 'set-image-pornpics',
   name: pluginData.name,
   version,
   date: formattedDate,
