@@ -20,6 +20,6 @@ exec:
   - "{pluginDir}\\plugin\\plugin.py"
 interface: raw
 tasks:
-  - name: Set Image for all blank tags (remember to back up your Stash before doing bulk operations)
+  - name: Set Image for all blank tags
     defaultArgs:
       mode: setTags
