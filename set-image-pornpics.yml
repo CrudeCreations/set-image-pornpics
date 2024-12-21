@@ -1,6 +1,6 @@
 name: Set Image PornPics
 description: Adds a 'Search PornPics...' option and plugin tasks for setting images from PornPics.
-version: 0.0.8
+version: 0.0.9
 url: https://github.com/CrudeCreations/set-image-pornpics
 ui:
   css:
@@ -20,6 +20,6 @@ exec:
   - "{pluginDir}\\plugin\\plugin.py"
 interface: raw
 tasks:
-  - name: Set Image for all blank tags (remember to back up your Stash before doing bulk operations)
+  - name: Set Image for all blank tags
     defaultArgs:
       mode: setTags
