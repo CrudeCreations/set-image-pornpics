@@ -1,5 +1,4 @@
 import requests
-import log
 
 
 class StashInterface:
@@ -16,13 +15,13 @@ class StashInterface:
     def __init__(self, conn):
         self.port = conn['Port']
         scheme = conn['Scheme']
-        host = conn['Host']
+        host = str.replace(conn['Host'], '0.0.0.0', '127.0.0.1')
         self.url = scheme + "://" + host + ":" + str(self.port) + "/graphql"
         self.cookies = {
             'session': conn.get('SessionCookie').get('Value')
         }
     
-    def __callGraphQL(self, query, variables = None):
+    def __callGraphQL(self, query, variables = None):      
         json = {}
         json['query'] = query
         if variables != None:
