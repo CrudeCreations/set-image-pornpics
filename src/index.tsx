@@ -28,13 +28,15 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
 
   const client = new StashClient(StashService);
   const startAddon = async (path: string) => {
-
     const loc = matchLocation(path, INJECTED_ROUTES);
     if (!loc) return;
 
     await asyncTimeout(100); //Yes super hacky, will replace with wait for selector
     const config = await client.getPluginConfig("set-image-pornpics");
-    if ((config.show_edit_group != true && loc == "groups") || (config.show_edit_scene != true && loc == "scenes")) {
+    if (
+      (config.show_edit_group != true && loc == "groups") ||
+      (config.show_edit_scene != true && loc == "scenes")
+    ) {
       return;
     }
     const id = getItemId();
@@ -46,10 +48,13 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
         TARGET_TEXT
       );
       setImageButtons.forEach((button) => {
-        if(itemType == ITEM_TYPE.GROUP) {
-          injectButton(button, itemData, button.textContent!.toLowerCase().indexOf('front') > -1);
-        }else
-          injectButton(button, itemData, true);
+        if (itemType == ITEM_TYPE.GROUP) {
+          injectButton(
+            button,
+            itemData,
+            button.textContent!.toLowerCase().indexOf("front") > -1
+          );
+        } else injectButton(button, itemData, true);
       });
     };
 
@@ -63,8 +68,14 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
     );
   };
 
-  const injectButton = (button: HTMLElement, itemData: ItemData, isFrontImage: boolean) => {
-    const renderClass = `pornpics-btn-wrapper-${isFrontImage ? 'front' : 'back'}`;
+  const injectButton = (
+    button: HTMLElement,
+    itemData: ItemData,
+    isFrontImage: boolean
+  ) => {
+    const renderClass = `pornpics-btn-wrapper-${
+      isFrontImage ? "front" : "back"
+    }`;
     let renderButton = button.parentNode?.querySelector(`.${renderClass}`);
     if (!renderButton) {
       renderButton = document.createElement("div");
@@ -73,7 +84,11 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
     button.parentNode?.insertBefore(renderButton, button.nextSibling);
     // Have to use render because createRoot is not exposed...
     ReactDOM.render(
-      <PornPicsButton itemData={itemData} client={client} isFrontImage={isFrontImage} />,
+      <PornPicsButton
+        itemData={itemData}
+        client={client}
+        isFrontImage={isFrontImage}
+      />,
       renderButton
     );
   };
@@ -110,8 +125,8 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
     }
   };
 
-  Event.addEventListener("stash:location", (e) =>
-    startAddon(e.detail.data.location.pathname)
-  );
+  Event.addEventListener("stash:location", (e) => {
+    startAddon(e.detail.data.location.pathname);
+  });
   asyncTimeout(100).then(() => startAddon(window.location.pathname));
 })();
