@@ -1,22 +1,9 @@
 import { StashClient } from "./api/stash";
 import { PornPicsButton } from "./components/PornPicsButton";
 import { ITEM_TYPE, ItemData } from "./types";
-import {
-  asyncTimeout,
-  matchLocation,
-  getSetImageComponents,
-  getItemId,
-  getItemType,
-} from "./utils";
+import { asyncTimeout, matchLocation, getItemId, getItemType, waitForElement } from "./utils";
 
-const INJECTED_ROUTES = ["groups", "scenes", "performers", "tags"];
-
-const TARGET_SELECTORS = [
-  ".details-edit > button.btn-secondary",
-  "#scene-edit-details .scene-cover + button.btn-secondary",
-];
-
-const TARGET_TEXT = ["set image", "front image", "back image"];
+const INJECTED_ROUTES = ["groups", "performers", "tags"];
 
 (function () {
   const {
@@ -33,49 +20,53 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
 
     await asyncTimeout(100); //Yes super hacky, will replace with wait for selector
     const config = await client.getPluginConfig("set-image-pornpics");
-    if (
-      (config.show_edit_group != true && loc == "groups") ||
-      (config.show_edit_scene != true && loc == "scenes")
-    ) {
+    if (config.show_edit_group != true && loc == "groups") {
       return;
     }
     const id = getItemId();
     const itemType = getItemType();
     const itemData = await getItemData(id, itemType);
-    const injectButtons = () => {
-      const setImageButtons = getSetImageComponents(
-        TARGET_SELECTORS,
-        TARGET_TEXT
-      );
-      setImageButtons.forEach((button) => {
-        if (itemType == ITEM_TYPE.GROUP) {
-          injectButton(
-            button,
-            itemData,
-            button.textContent!.toLowerCase().indexOf("front") > -1
-          );
-        } else injectButton(button, itemData, true);
-      });
-    };
-
-    const editButton = document.querySelector(".edit.btn.btn-primary");
-    const editTab = document.querySelector('a[data-rb-event-key*="edit-panel"');
-    editButton?.addEventListener("click", () =>
-      asyncTimeout(100).then(injectButtons)
-    );
-    editTab?.addEventListener("click", () =>
-      asyncTimeout(100).then(injectButtons)
-    );
+    injectButtons(itemData);
   };
 
-  const injectButton = (
-    button: HTMLElement,
-    itemData: ItemData,
-    isFrontImage: boolean
-  ) => {
-    const renderClass = `pornpics-btn-wrapper-${
-      isFrontImage ? "front" : "back"
-    }`;
+  const injectButtons = (itemData: ItemData) => {
+    const editButtons = [
+      ...document.querySelectorAll(
+        ".detail-header:not(.edit) .edit.btn.btn-primary"
+      ),
+    ];
+    console.log("Injecting cover buttons");
+    console.log(editButtons);
+    editButtons.forEach((button) => {
+      button && injectButton(button as HTMLElement, itemData);
+    });
+    editButtons.forEach((button) => {
+      button?.addEventListener("click", async () => {
+        await waitForElement(".detail-header.edit");
+        injectCancelSaveListeners(itemData);
+      });
+    });
+  };
+
+  const injectCancelSaveListeners = (itemData: ItemData) => {
+    const buttons = [
+      ...document.querySelectorAll(
+        ".detail-header.edit .details-edit .edit.btn"
+      ),
+      ...document.querySelectorAll(
+        ".detail-header.edit .details-edit .save.btn"
+      ),
+    ];
+    buttons.forEach((button) => {
+      button?.addEventListener("click", async () => {
+        await waitForElement(".detail-header:not(.edit)");
+        injectButtons(itemData);
+      });
+    });
+  };
+
+  const injectButton = (button: HTMLElement, itemData: ItemData) => {
+    const renderClass = "pornpics-btn-wrapper";
     let renderButton = button.parentNode?.querySelector(`.${renderClass}`);
     if (!renderButton) {
       renderButton = document.createElement("div");
@@ -84,11 +75,7 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
     button.parentNode?.insertBefore(renderButton, button.nextSibling);
     // Have to use render because createRoot is not exposed...
     ReactDOM.render(
-      <PornPicsButton
-        itemData={itemData}
-        client={client}
-        isFrontImage={isFrontImage}
-      />,
+      <PornPicsButton itemData={itemData} client={client} />,
       renderButton
     );
   };
@@ -98,14 +85,6 @@ const TARGET_TEXT = ["set image", "front image", "back image"];
     itemType: ITEM_TYPE
   ): Promise<ItemData> => {
     switch (itemType) {
-      case ITEM_TYPE.SCENE: {
-        const {
-          title,
-          id,
-          paths: { screenshot },
-        } = await client.getSceneData(itemId);
-        return { title, id, cover: screenshot, type: itemType };
-      }
       case ITEM_TYPE.TAG:
       case ITEM_TYPE.PERFORMER: {
         const { id, name, image_path } =
