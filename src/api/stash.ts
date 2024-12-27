@@ -9,7 +9,7 @@ export class StashClient {
   }
 
   public async getPluginConfig(pluginId: string): Promise<IPluginConfig> {
-    const resp = await this .client.query({
+    const resp = await this.client.query({
       query: gql`
       {
         configuration {

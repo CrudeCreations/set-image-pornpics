@@ -8,9 +8,6 @@ ui:
   javascript:
   - index.js
 settings:
-  show_edit_scene:
-    displayName: Show button when editing scene
-    type: BOOLEAN
   show_edit_group:
     displayName: Show button when editing group
     type: BOOLEAN
