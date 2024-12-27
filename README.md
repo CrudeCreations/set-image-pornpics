@@ -37,7 +37,7 @@ A Stash plugin that enables easy image management by integrating with PornPics.c
 
 1. Navigate to any scene, group, performer, or tag edit page
    - You must enable the button for scenes and groups in settings
-2. Click the "Search PornPics..." button
+2. Click the "Set Cover" button
 3. Enter your search query
 4. Browse through the gallery results
 5. Click an image to view the full set
