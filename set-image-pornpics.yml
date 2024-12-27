@@ -1,5 +1,5 @@
 name: Set Image PornPics
-description: Adds a 'Search PornPics...' option and plugin tasks for setting images from PornPics.
+description: Adds a 'Set Cover' option and plugin tasks for setting images from PornPics.
 version: 0.0.14
 url: https://github.com/CrudeCreations/set-image-pornpics
 ui:
@@ -17,6 +17,6 @@ exec:
   - "{pluginDir}/plugin/plugin.py"
 interface: raw
 tasks:
-  - name: Set Image for all blank tags
+  - name: Set Cover for all blank tags
     defaultArgs:
       mode: setTags
