@@ -31,24 +31,12 @@ const INJECTED_ROUTES = ["groups", "performers", "tags"];
       document.querySelector('a[data-rb-event-key*="edit-panel"'),
     ];
     editButtons.forEach((button) => {
-      if (itemType == ITEM_TYPE.GROUP && button) {
-        injectButton(
-          button as HTMLElement,
-          itemData,
-          button.textContent!.toLowerCase().indexOf("front") > -1
-        );
-      } else if (button) injectButton(button as HTMLElement, itemData, true);
+      button && injectButton(button as HTMLElement, itemData);
     });
   };
 
-  const injectButton = (
-    button: HTMLElement,
-    itemData: ItemData,
-    isFrontImage: boolean
-  ) => {
-    const renderClass = `pornpics-btn-wrapper-${
-      isFrontImage ? "front" : "back"
-    }`;
+  const injectButton = (button: HTMLElement, itemData: ItemData) => {
+    const renderClass = "pornpics-btn-wrapper";
     let renderButton = button.parentNode?.querySelector(`.${renderClass}`);
     if (!renderButton) {
       renderButton = document.createElement("div");
@@ -57,11 +45,7 @@ const INJECTED_ROUTES = ["groups", "performers", "tags"];
     button.parentNode?.insertBefore(renderButton, button.nextSibling);
     // Have to use render because createRoot is not exposed...
     ReactDOM.render(
-      <PornPicsButton
-        itemData={itemData}
-        client={client}
-        isFrontImage={isFrontImage}
-      />,
+      <PornPicsButton itemData={itemData} client={client} />,
       renderButton
     );
   };

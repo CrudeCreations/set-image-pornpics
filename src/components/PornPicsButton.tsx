@@ -1,5 +1,5 @@
 import { StashClient } from "../api/stash";
-import { PornPicsImage, DIALOG_MODE, ItemData } from "../types";
+import { PornPicsImage, DIALOG_MODE, ItemData, ITEM_TYPE } from "../types";
 import { useDebounce } from "../utils";
 const React = window.PluginApi.React;
 const { useState, useEffect, useRef } = React;
@@ -18,13 +18,11 @@ const {
 export interface PornPicsButtonProps {
   itemData: ItemData;
   client: StashClient;
-  isFrontImage: boolean;
 }
 
 export const PornPicsButton = ({
   itemData,
   client,
-  isFrontImage,
 }: PornPicsButtonProps) => {
   const dialogScrollContainer = useRef();
   const [mode, setMode] = useState(DIALOG_MODE.GALLERY);
@@ -34,6 +32,7 @@ export const PornPicsButton = ({
   const [offset, setOffset] = useState(0);
   const debouncedQuery = useDebounce(query, 500);
   const [lastScroll, setLastScroll] = useState(0);
+  const [isFrontImage, setIsFrontImage] = useState(itemData.type == ITEM_TYPE.GROUP);
   const openDialog = () => setShowDialog(true);
   const closeDialog = () => setShowDialog(false);
   const [galleryData, setGalleryData] = useState<PornPicsImage[]>([]);
@@ -136,6 +135,11 @@ export const PornPicsButton = ({
                 onChange={(e: any) => setQuery(e.target.value)}
               />
             </Row>
+            {itemData.type == ITEM_TYPE.GROUP && <Row className="p-2 d-flex justify-content-center">
+                <Button variant="secondary" onClick={() => setIsFrontImage(!isFrontImage)}>
+                  {isFrontImage ? "Front Cover" : "Back Cover"}
+                </Button>
+              </Row>}
             {mode == DIALOG_MODE.SET && (
               <Row className="p-2 d-flex justify-content-start">
                 <Button
