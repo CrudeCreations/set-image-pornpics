@@ -15,6 +15,15 @@ export const matchLocation = (
   );
 };
 
+export const waitForElement = async (selector: string, maxAttempts = 10):Promise<Element | undefined> => {
+  for(let i = 0; i < maxAttempts; i++) {
+    var el = document.querySelector(selector);
+    if(el) return el;
+    await asyncTimeout(100);
+  }
+  return;
+}
+
 export const getSetImageComponents = (
   targetSelectors: string[],
   targetText: string[]

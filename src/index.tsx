@@ -1,7 +1,7 @@
 import { StashClient } from "./api/stash";
 import { PornPicsButton } from "./components/PornPicsButton";
 import { ITEM_TYPE, ItemData } from "./types";
-import { asyncTimeout, matchLocation, getItemId, getItemType } from "./utils";
+import { asyncTimeout, matchLocation, getItemId, getItemType, waitForElement } from "./utils";
 
 const INJECTED_ROUTES = ["groups", "performers", "tags"];
 
@@ -26,12 +26,42 @@ const INJECTED_ROUTES = ["groups", "performers", "tags"];
     const id = getItemId();
     const itemType = getItemType();
     const itemData = await getItemData(id, itemType);
+    injectButtons(itemData);
+  };
+
+  const injectButtons = (itemData: ItemData) => {
     const editButtons = [
-      document.querySelector(".edit.btn.btn-primary"),
-      document.querySelector('a[data-rb-event-key*="edit-panel"'),
+      ...document.querySelectorAll(
+        ".detail-header:not(.edit) .edit.btn.btn-primary"
+      ),
     ];
+    console.log("Injecting cover buttons");
+    console.log(editButtons);
     editButtons.forEach((button) => {
       button && injectButton(button as HTMLElement, itemData);
+    });
+    editButtons.forEach((button) => {
+      button?.addEventListener("click", async () => {
+        await waitForElement(".detail-header.edit");
+        injectCancelSaveListeners(itemData);
+      });
+    });
+  };
+
+  const injectCancelSaveListeners = (itemData: ItemData) => {
+    const buttons = [
+      ...document.querySelectorAll(
+        ".detail-header.edit .details-edit .edit.btn"
+      ),
+      ...document.querySelectorAll(
+        ".detail-header.edit .details-edit .save.btn"
+      ),
+    ];
+    buttons.forEach((button) => {
+      button?.addEventListener("click", async () => {
+        await waitForElement(".detail-header:not(.edit)");
+        injectButtons(itemData);
+      });
     });
   };
 
