@@ -1,3 +1,4 @@
+import type { DocumentNode } from "@apollo/client";
 import { ITEM_TYPE, ItemData } from "../types";
 
 export const asyncTimeout = async (ms: number) =>
@@ -50,8 +51,6 @@ export const getItemId = (): string => {
 export const getItemType = (): ITEM_TYPE => {
   const itemString = window.location.href.split("/").at(3)?.split("?")[0];
   switch (itemString) {
-    case "scenes":
-      return ITEM_TYPE.SCENE;
     case "tags":
       return ITEM_TYPE.TAG;
     case "groups":
@@ -65,23 +64,19 @@ export const getItemType = (): ITEM_TYPE => {
   }
 };
 
-export const getImageSelectors = (
-  itemData: ItemData,
-  isFrontImage: boolean
-): string[] => {
-  switch (itemData.type) {
-    case ITEM_TYPE.SCENE:
-      return [".scene-cover"];
-    case ITEM_TYPE.TAG:
-      return [".logo", `.tag-card-image[src*="tag/${itemData.id}/image"]`];
-    case ITEM_TYPE.PERFORMER:
-      return [".performer"];
-    case ITEM_TYPE.GROUP:
-      return [`img[alt="${isFrontImage ? "Front Cover" : "Back Cover"}"]`];
-    default:
-      return [];
-  }
-};
+// TODO: Figure out exact queries to evict
+// export const getTargetQueries = (itemData: ItemData): DocumentNode[] => {
+//   switch (itemData.type) {
+//     case ITEM_TYPE.TAG:
+//       return [window.PluginApi.GQL.FindTagsDocument, window.PluginApi.GQL.FindTagDocument];
+//     case ITEM_TYPE.PERFORMER:
+//       return [window.PluginApi.GQL.FindPerformersDocument, window.PluginApi.GQL.FindPerformerDocument];
+//     case ITEM_TYPE.GROUP:
+//       return [window.PluginApi.GQL.FindGroupsDocument, window.PluginApi.GQL.FindGroupDocument];
+//     default:
+//       return [];
+//   }
+// }
 
 export const useDebounce = (value: any, delay: number) => {
   const { React } = window.PluginApi;

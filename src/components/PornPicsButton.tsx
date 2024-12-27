@@ -1,6 +1,6 @@
 import { StashClient } from "../api/stash";
-import { PornPicsImage, DIALOG_MODE, ITEM_TYPE, ItemData } from "../types";
-import { getImageSelectors, useDebounce } from "../utils";
+import { PornPicsImage, DIALOG_MODE, ItemData } from "../types";
+import { useDebounce } from "../utils";
 const React = window.PluginApi.React;
 const { useState, useEffect, useRef } = React;
 const {
@@ -21,7 +21,11 @@ export interface PornPicsButtonProps {
   isFrontImage: boolean;
 }
 
-export const PornPicsButton = ({ itemData, client, isFrontImage }: PornPicsButtonProps) => {
+export const PornPicsButton = ({
+  itemData,
+  client,
+  isFrontImage,
+}: PornPicsButtonProps) => {
   const dialogScrollContainer = useRef();
   const [mode, setMode] = useState(DIALOG_MODE.GALLERY);
   const [loading, setLoading] = useState(true);
@@ -34,7 +38,7 @@ export const PornPicsButton = ({ itemData, client, isFrontImage }: PornPicsButto
   const closeDialog = () => setShowDialog(false);
   const [galleryData, setGalleryData] = useState<PornPicsImage[]>([]);
   const [imageData, setImageData] = useState<PornPicsImage[]>([]);
-  
+
   useEffect(() => {
     setLoading(true);
     if (debouncedQuery != query) {
@@ -91,18 +95,19 @@ export const PornPicsButton = ({ itemData, client, isFrontImage }: PornPicsButto
   };
 
   const handleImageSelect = async (img: PornPicsImage) => {
-    const imgSrc = await client.saveImage(
+    await client.saveImage(
       itemData.id,
       img.url_hd,
       itemData.type,
       isFrontImage
     );
-    const targetSelectors = getImageSelectors(itemData, isFrontImage);
-    targetSelectors.forEach(s => document.querySelector(s)?.setAttribute('src', img.url_hd))
-    const poster = document.querySelector(".vjs-poster") as
-      | HTMLElement
-      | undefined;
-    if (poster) poster.style.background = `url("${imgSrc}")`;
+    // This is a super lazy method of forcing a state refresh on everything
+    window.PluginApi.utils.StashService.evictQueries(
+      window.PluginApi.utils.StashService.getClient().cache,
+      [...Object.keys(window.PluginApi.GQL)]
+        .filter((k) => k.indexOf("Find") == 0)
+        .map((k) => window.PluginApi.GQL[k])
+    );
     closeDialog();
   };
   const getActiveImages = () =>
@@ -115,7 +120,7 @@ export const PornPicsButton = ({ itemData, client, isFrontImage }: PornPicsButto
         className="pornpics-button"
         onClick={openDialog}
       >
-        <span>Search PornPics...</span>
+        <span>Set Cover</span>
       </Button>
       <Modal show={showDialog} onHide={closeDialog}>
         <ModalTitle closeButton>
@@ -128,9 +133,7 @@ export const PornPicsButton = ({ itemData, client, isFrontImage }: PornPicsButto
                 id="pornpics-button-input"
                 placeholder="Search..."
                 value={query}
-                onChange={(e: any) =>
-                  setQuery(e.target.value)
-                }
+                onChange={(e: any) => setQuery(e.target.value)}
               />
             </Row>
             {mode == DIALOG_MODE.SET && (

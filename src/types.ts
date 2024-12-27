@@ -1,3 +1,5 @@
+import type { ApolloClient, DocumentNode, NormalizedCacheObject } from "@apollo/client";
+
 declare global {
   interface Window {
     PluginApi: IPluginApi;
@@ -6,7 +8,6 @@ declare global {
 
 export interface IPluginConfig {
   show_edit_group?:boolean;
-  show_edit_scene?:boolean;
 }
 
 export interface IPluginApi {
@@ -38,7 +39,10 @@ export interface IPluginApi {
   utils: {
     NavUtils: any;
     loadComponents: any;
-    StashService: any;
+    StashService: {
+      evictQueries: (cache: ApolloClient<object>['cache'], queries: DocumentNode[]) => boolean;
+      getClient: () => ApolloClient<NormalizedCacheObject>
+    };
   };
   hooks: any;
   patch: {
@@ -72,7 +76,6 @@ export enum DIALOG_MODE {
 }
 
 export enum ITEM_TYPE {
-  SCENE="scene",
   GROUP="group",
   PERFORMER="performer",
   TAG="tag",
